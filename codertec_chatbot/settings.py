@@ -1,4 +1,5 @@
 from pathlib import Path
+import os 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -13,7 +14,7 @@ SECRET_KEY = 'django-insecure-t=d1a4uq4a2%-otpkj#sdozjd3&fvqa6=fq31qioypjtsq4&ut
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['codertec-backend.onrender.com', 'www.codertec.com.br']
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 CSRF_TRUSTED_ORIGINS = ["https://codertec-backend.onrender.com"]
 
 
