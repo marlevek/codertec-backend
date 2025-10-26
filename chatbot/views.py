@@ -4,6 +4,8 @@ import requests
 from dotenv import load_dotenv
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from .models import ChatMessage, ChatSession
+
 
 # 🔹 Carrega as variáveis do .env
 load_dotenv()
@@ -24,19 +26,33 @@ Oferecemos serviços de:
 """
 
 @csrf_exempt
-def chatbot_response(request):
+def chat_api(request):
     if request.method != "POST":
         return JsonResponse({"error": "Método não permitido"}, status=405)
 
-    # 🔸 Validação do JSON recebido
-    try:
-        data = json.loads(request.body)
-        user_message = data.get("message", "").strip()
-    except Exception:
-        return JsonResponse({"error": "JSON inválido"}, status=400)
+    data = json.loads(request.body)
+    message = data.get("message", "")
+    context = data.get("context", "geral")
+    user_name = data.get("user_name", "")
+    business_type = data.get("business_type", "")
+    
+    # 🔹 Cria ou recupera sessão
+    session, created = ChatSession.objects.get_or_create(
+        user_name=user_name or None,
+        business_type=business_type or None,
+        context=context
+    )
 
-    if not user_message:
-        return JsonResponse({"error": "Mensagem vazia"}, status=400)
+     # 🔹 Guarda mensagem do usuário
+    ChatMessage.objects.create(session=session, sender="user", message=message)
+
+    # 🔹 Gera resposta (você pode manter a sua lógica atual)
+    reply = gerar_resposta_contextual(message, context)
+
+    # 🔹 Guarda resposta do bot
+    ChatMessage.objects.create(session=session, sender="bot", message=reply)
+
+    return JsonResponse({"reply": reply})
 
     # 🔹 Monta o prompt com contexto
     prompt = f"""
@@ -83,3 +99,18 @@ Usuário: {user_message}
     except Exception as e:
         print("❌ Falha OpenAI:", e)
         return JsonResponse({"reply": f"Erro ao acessar a IA: {e}"})
+
+
+def gerar_resposta_contextual(msg, contexto):
+    msg_lower = msg.lower()
+    respostas = {
+        "automacao": "Automatizamos relatórios, integrações e fluxos com IA.",
+        "dashboards": "Criamos dashboards interativos em Power BI, Streamlit e Plotly.",
+        "ciencia-de-dados": "Analisamos dados e aplicamos Machine Learning para gerar insights estratégicos.",
+        "desenvolvimento-web": "Criamos sites, aplicação web completa, landing pages e muito mais",
+        "geral": "Sou o assistente da CoderTec — posso te ajudar com sites, automações e IA."
+    }
+
+    if "preço" in msg_lower or "valor" in msg_lower:
+        return "Cada projeto é personalizado 😊 posso entender sua necessidade para estimar um orçamento."
+    return respostas.get(contexto, respostas["geral"])
