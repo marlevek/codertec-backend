@@ -14,7 +14,14 @@ SECRET_KEY = 'django-insecure-t=d1a4uq4a2%-otpkj#sdozjd3&fvqa6=fq31qioypjtsq4&ut
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+ALLOWED_HOSTS = [
+    'codertec-backend.onrender.com',
+    'www.codertec.com.br',
+    'web-production-6e4b.up.railway.app',
+    '.up.railway.app',  # permite qualquer subdomínio do Railway
+    '127.0.0.1',
+    'localhost'
+]
 CSRF_TRUSTED_ORIGINS = ["https://codertec-backend.onrender.com"]
 
 
