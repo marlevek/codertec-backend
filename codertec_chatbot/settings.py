@@ -51,6 +51,10 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "https://www.codertec.com.br",
+]
+
 CORS_ALLOW_ALL_ORIGINS = True 
 
 ROOT_URLCONF = 'codertec_chatbot.urls'
